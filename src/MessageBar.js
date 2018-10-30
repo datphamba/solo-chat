@@ -7,7 +7,8 @@ import moment from 'moment';
 class MessageBar extends Component {
     static propTypes = {
       onSendMessage: PropTypes.func
-    }
+	}
+	
     constructor(props) {
         super(props);
         this.state = {
@@ -18,25 +19,30 @@ class MessageBar extends Component {
 	
 	fetchSWAPI = async (characterName) => {
         try {
+
             const res = await fetch(
                 `https://swapi.co/api/people/?search=${characterName}`
 			);
+
 			const response = await res.json();
+
 			if (!res.ok) {
 				this.props.onSendMessage && this.props.onSendMessage('No result found !');
 			} else {
 				if(response.count === 0) {
-					this.props.onSendMessage && this.props.onSendMessage(`Starwars character ${ characterName } not found !`);
+					this.props.onSendMessage && this.props.onSendMessage(`Starwars character "${ characterName }" not found !`);
 				} else {
+					this.props.onSendMessage && this.props.onSendMessage(`/starwars "${ characterName }"`);
 					this.props.onSendMessage && this.props.onSendMessage(`Fullname: ${response.results[0].name}`);
 					this.props.onSendMessage && this.props.onSendMessage(`Gender: ${response.results[0].gender}`);
 					this.props.onSendMessage && this.props.onSendMessage(`Height: ${response.results[0].height}`);
 					this.props.onSendMessage && this.props.onSendMessage(`Mass: ${response.results[0].mass}`);
-					this.props.onSendMessage && this.props.onSendMessage(`_____________________________`);
 				}
 			}
+
         } catch (e) {
-            this.props.onSendMessage && this.props.onSendMessage("Sorry, Something went wrong !");
+			this.props.onSendMessage && this.props.onSendMessage("Sorry, Something went wrong !");
+			throw e;
 		}
 	};
 	
@@ -48,8 +54,10 @@ class MessageBar extends Component {
             return;
         }
         if (/^\s*\/time\s*$/g.test(this.state.message)) {
+			this.props.onSendMessage && this.props.onSendMessage(`/time`);
             this.props.onSendMessage && this.props.onSendMessage(moment(new Date()).format('lll'));
         } else if (/^\s*\/goodbye\s*$/g.test(this.state.message)) {
+			this.props.onSendMessage && this.props.onSendMessage(`/goodbye`);
 			this.props.onSendMessage && this.props.onSendMessage('Goodbye, Have a nice day !');
             this.setState({
 				disabled: true
@@ -62,7 +70,7 @@ class MessageBar extends Component {
                 const characterName = matches[1];
 				this.fetchSWAPI(characterName);
             } else {
-				this.props.onSendMessage && this.props.onSendMessage(`Starwars character ${ matches[1] } not found !`);
+				this.props.onSendMessage && this.props.onSendMessage(`Starwars character "${ matches[1] }" not found !`);
 			}
         } else if (this.state.message.startsWith('/')) {
             this.props.onSendMessage && this.props.onSendMessage('Sorry, This command still not supported yet !');
